@@ -403,8 +403,10 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
         path = output_dir or os.path.abspath(entry.path)
         ensuredir(path)
 
+        last_errors = list()
+
         try:
-            name, obj, parent, modname = import_by_name(entry.name)
+            name, obj, parent, modname = import_by_name(entry.name, last_errors=last_errors)
             qualname = name.replace(modname + ".", "")
         except ImportError as e:
             try:
@@ -412,7 +414,7 @@ def generate_autosummary_docs(sources: List[str], output_dir: str = None,
                 name, obj, parent, modname = import_ivar_by_name(entry.name)
                 qualname = name.replace(modname + ".", "")
             except ImportError:
-                _warn(__('[autosummary] failed to import %r: %s') % (entry.name, e))
+                _warn(__('[autosummary] failed to import %r: %s. Possible hints: %s') % (entry.name, e, last_errors))
                 continue
 
         context = {}
